@@ -1,0 +1,54 @@
+---
+title: "WorldMap"
+author: "Han"
+date: "5/27/2020"
+output: pdf_document
+---
+
+```{r}
+install.packages('sqldf')
+install.packages('gsubfn')
+install.packages('proto')
+library(gsubfn)
+library(proto)
+library(sqldf)
+library(jpeg)
+```
+
+```{r}
+setwd('/Volumes/Documents/NYMP/Video edit/Chinese/Photo/WorldMap')
+M <- readJPEG('ColorWorldMap.jpg')
+meid <- data.frame(z = 1:1200, y = as.numeric(M))
+meid <- sqldf('select * from meid order by y')
+```
+
+```{r}
+setwd('/Volumes/Documents/NYMP/Video edit/Chinese/Photo/WorldMap/jpeg')
+tmp <- NULL
+for(i in dir()) 
+    tmp[[i]] <- readJPEG (i)
+    id <- sapply(tmp, mean)
+    id <- data.frame(n = names(id), m = id)
+    id <- sqldf('select * from id order by m')
+    idx <- cbind(id, meid)
+    idx <- sqldf('select * from idx order by z')
+```
+
+```{r}
+setwd('/Volumes/Documents/NYMP/Video edit/Chinese/Photo/WorldMap')
+png('Mp.png', height = 1000, width = 750)
+par(mfcol = c(40,30), mar = rep(0,4), xpd = NA)
+for(i in idx$n) plot(tmp[[i]])
+dev.off()
+```
+
+```{r}
+setwd('/Volumes/Documents/NYMP/Video edit/Chinese/Photo/WorldMap')
+shell("convert *.jpg  -crop 120x120+10+5 thumbnail%03d.png")
+shell("del *.jpg")
+shell("convert -type Grayscale *.png thumbnail%03d.png")
+``` 
+
+
+
+
